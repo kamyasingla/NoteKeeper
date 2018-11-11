@@ -5,11 +5,11 @@ import com.uwindsor.notekeeper.model.Note;
 
 import java.util.List;
 
-public class NoteRepository implements CrudRepository<Note> {
+public class DriveNoteRepository implements CrudRepository<Note> {
 
     private Drive driveService;
 
-    public NoteRepository(Drive driveService) {
+    public DriveNoteRepository(Drive driveService) {
         this.driveService = driveService;
     }
 
