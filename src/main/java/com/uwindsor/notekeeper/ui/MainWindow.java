@@ -30,20 +30,31 @@ public class MainWindow {
         frame = new JFrame();
         frame.setBounds(100, 100, 384, 456);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().setLayout(null);
+        frame.getContentPane().setLayout(new BorderLayout());
 
-        JPanel panel_1 = new JPanel();
-        panel_1.setBounds(0, 0, 379, 430);
-        frame.getContentPane().add(panel_1);
-        panel_1.setLayout(null);
+        JPanel btnPanel = new JPanel();
+        frame.getContentPane().add(btnPanel, BorderLayout.NORTH);
+        btnPanel.setLayout(new BorderLayout(0, 0));
 
         JButton btnCreate = new JButton("+");
-        btnCreate.setBounds(312, 6, 61, 29);
-        panel_1.add(btnCreate);
+        btnPanel.add(btnCreate, BorderLayout.EAST);
+
+        JPanel borderPanelW = new JPanel();
+        frame.getContentPane().add(borderPanelW, BorderLayout.WEST);
+
+        JPanel borderPanelE = new JPanel();
+        frame.getContentPane().add(borderPanelE, BorderLayout.EAST);
+
+        JPanel borderPanelS = new JPanel();
+        frame.getContentPane().add(borderPanelS, BorderLayout.SOUTH);
+
+        JScrollPane scrollPane = new JScrollPane();
+        frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+
         Note[] notes = new Note[100];
 
         for(int i = 0; i < 100; i++) {
-            notes[i] = new Note("123", "xyz.txt" + i, new Date(), false);
+            notes[i] = new Note("123", "xyz.txt" + i, new Date(), i % 2 == 0);
         }
         JList<Note> list = new JList<>(notes);
         list.addMouseListener(new MouseAdapter() {
@@ -60,9 +71,6 @@ public class MainWindow {
 
         list.setCellRenderer(new NoteListItem());
         list.setBackground(Color.WHITE);
-        JScrollPane scrollBar = new JScrollPane(list);
-        scrollBar.setBounds(6, 62, 367, 346);
-        scrollBar.setViewportView(list);
-        panel_1.add(scrollBar);
+        scrollPane.setViewportView(list);
     }
 }
