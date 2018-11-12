@@ -5,7 +5,8 @@ import com.uwindsor.notekeeper.model.Note;
 import javax.swing.*;
 import java.awt.*;
 
-public class NoteListItem extends JPanel implements ListCellRenderer<Note> { 
+public class NoteListItem extends JPanel implements ListCellRenderer<Note> {
+    private final JPanel labelPanel, iconPanel;
     private final JLabel lblTitle, lblDate, lblEncrypted;
     private final ImageIcon icon = new ImageIcon(getClass().getResource("/lock.png"));
 
@@ -16,7 +17,7 @@ public class NoteListItem extends JPanel implements ListCellRenderer<Note> {
 
 		setLayout(new BorderLayout());
 
-		JPanel labelPanel = new JPanel();
+		labelPanel = new JPanel();
 		add(labelPanel, BorderLayout.CENTER);
 		labelPanel.setLayout(new BorderLayout());
 
@@ -27,7 +28,7 @@ public class NoteListItem extends JPanel implements ListCellRenderer<Note> {
         labelPanel.add(lblDate, BorderLayout.SOUTH);
         setBackground(Color.white);
 
-		JPanel iconPanel = new JPanel();
+		iconPanel = new JPanel();
 		add(iconPanel, BorderLayout.EAST);
 		iconPanel.setLayout(new BorderLayout());
 
@@ -42,9 +43,15 @@ public class NoteListItem extends JPanel implements ListCellRenderer<Note> {
     }
     
     private void setSelected(boolean isSelected) { 
-    	if(isSelected) setBackground(Color.BLUE);
-    	else setBackground(Color.WHITE);
-}
+    	if(isSelected) {
+    	    labelPanel.setBackground(Color.BLUE);
+    	    iconPanel.setBackground(Color.BLUE);
+        }
+    	else{
+    	    labelPanel.setBackground(Color.WHITE);
+    	    iconPanel.setBackground(Color.WHITE);
+        }
+    }
 
     @Override
     public Component getListCellRendererComponent(JList<? extends Note> list, Note value, int index, boolean isSelected, boolean cellHasFocus) {

@@ -62,7 +62,8 @@ public class MainWindow {
             public void mouseClicked(MouseEvent e) {
                 JList list = (JList)e.getSource();
                 if(e.getClickCount() == 2) {
-                    System.out.println("Selected: " + notes[list.getSelectedIndex()].getFileName());
+                    NoteViewer noteViewer = new NoteViewer(notes[list.getSelectedIndex()]);
+                    noteViewer.frame.setVisible(true);
                 } else {
                     super.mouseClicked(e);
                 }
