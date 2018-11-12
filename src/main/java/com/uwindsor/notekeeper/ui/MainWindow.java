@@ -1,6 +1,7 @@
 package com.uwindsor.notekeeper.ui;
 
 import com.uwindsor.notekeeper.model.Note;
+import com.uwindsor.notekeeper.service.PersistenceService;
 
 import java.awt.EventQueue;
 
@@ -9,18 +10,31 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 public class MainWindow {
 
     public JFrame frame;
+    private PersistenceService persistenceService;
 
     /**
      * Create the application.
      */
-    public MainWindow() {
+    public MainWindow(PersistenceService persistenceService) {
+        this.persistenceService = persistenceService;
         initialize();
+    }
+
+    private Note[] loadNotes() {
+        try {
+            List<Note> notes = persistenceService.getAllNotes();
+            return notes.toArray(new Note[0]);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return new Note[0];
+        }
     }
 
     /**
@@ -51,18 +65,15 @@ public class MainWindow {
         JScrollPane scrollPane = new JScrollPane();
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
 
-        Note[] notes = new Note[100];
+        Note[] notes = loadNotes();
 
-        for(int i = 0; i < 100; i++) {
-            notes[i] = new Note("123", "xyz.txt" + i, new Date(), i % 2 == 0);
-        }
         JList<Note> list = new JList<>(notes);
         list.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 JList list = (JList)e.getSource();
                 if(e.getClickCount() == 2) {
-                    NoteViewer noteViewer = new NoteViewer(notes[list.getSelectedIndex()]);
+                    NoteViewer noteViewer = new NoteViewer(persistenceService, notes[list.getSelectedIndex()]);
                     noteViewer.frame.setVisible(true);
                 } else {
                     super.mouseClicked(e);

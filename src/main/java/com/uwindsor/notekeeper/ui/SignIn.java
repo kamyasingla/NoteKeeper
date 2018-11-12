@@ -1,10 +1,7 @@
 package com.uwindsor.notekeeper.ui;
 
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
-import com.uwindsor.notekeeper.drive.GoogleDriveClient;
-import com.uwindsor.notekeeper.drive.GoogleDriveService;
-import com.uwindsor.notekeeper.util.Constants;
+import com.uwindsor.notekeeper.drive.GooglePersistenceService;
+import com.uwindsor.notekeeper.service.PersistenceService;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -16,26 +13,12 @@ import java.io.IOException;
 
 public class SignIn {
 
-    private static Drive service;
+    private static PersistenceService persistenceService;
     public JFrame frame;
 
-    /**
-      * Create the application.
-      */
-            public SignIn() {
+    public SignIn() {
+        persistenceService = new GooglePersistenceService();
         initialize();
-    }
-
-    private static void setup() throws IOException {
-        // Setup root directory
-        File f = GoogleDriveClient.createIfNotExists(service, Constants.NOTE_KEEPER_DIR);
-        Constants.NOTE_KEEPER_DIR_ID = f.getId();
-        // Setup notes directory
-        f = GoogleDriveClient.createIfNotExists(service, Constants.NOTE_KEEPER_DIR_ID, Constants.NOTES_DIR);
-        Constants.NOTES_DIR_ID = f.getId();
-        // Setup encrypted directory
-        f = GoogleDriveClient.createIfNotExists(service, Constants.NOTE_KEEPER_DIR_ID, Constants.ENCRYPTED_NOTES_DIR);
-        Constants.ENCRYPTED_NOTE_DIR_ID = f.getId();
     }
 
     /**
@@ -54,11 +37,10 @@ public class SignIn {
 
         JButton btnNewButton = new JButton("Sign In With Google");
         btnNewButton.addActionListener(e -> {
-            service = GoogleDriveService.getInstance();
-            if(service != null) {
+            if(persistenceService != null) {
                 try {
-                    setup();
-                    MainWindow mainWindow = new MainWindow();
+                    persistenceService.setup();
+                    MainWindow mainWindow = new MainWindow(persistenceService);
                     mainWindow.frame.setVisible(true);
                     frame.setVisible(false);
                 } catch (IOException ex) {

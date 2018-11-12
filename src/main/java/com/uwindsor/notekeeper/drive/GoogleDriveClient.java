@@ -14,6 +14,9 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -89,7 +92,7 @@ public class GoogleDriveClient {
      }
     }
 
-    public static File createIfNotExists(Drive service, String parent, String path) throws IOException {
+    static File createIfNotExists(Drive service, String parent, String path) throws IOException {
         FileList fileList  = service.files()
                 .list()
                 .setQ("'"+ parent +"' in parents and name='" + path + "' and trashed = false" )
@@ -99,5 +102,22 @@ public class GoogleDriveClient {
         } else {
             return createDirectory(service, parent, path);
         }
+    }
+
+    static FileList getFiles(Drive service, String parent) throws IOException {
+        return service.files()
+                .list()
+                .setFields("nextPageToken, files(id, name, modifiedTime)")
+                .setQ("'"+ parent +"' in parents and trashed = false" )
+                .execute();
+    }
+
+    static String getFile(Drive service, String fileId) throws IOException {
+        InputStream inputStream = service.files()
+                .get(fileId)
+                .executeMediaAsInputStream();
+
+        return CharStreams.toString(new InputStreamReader(
+                inputStream, Charsets.UTF_8));
     }
 }
