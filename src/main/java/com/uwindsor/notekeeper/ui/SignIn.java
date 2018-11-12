@@ -20,23 +20,9 @@ public class SignIn {
     public JFrame frame;
 
     /**
-     * Launch the application.
-     */
-//    public static void main(String[] args) {
-//        EventQueue.invokeLater(() -> {
-//            try {
-//                SignIn window = new SignIn();
-//                window.frame.setVisible(true);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        });
-//    }
-
-    /**
-     * Create the application.
-     */
-    public SignIn() {
+      * Create the application.
+      */
+            public SignIn() {
         initialize();
     }
 
@@ -53,9 +39,9 @@ public class SignIn {
     }
 
     /**
-     * Initialize the contents of the frame.
-     */
-    private void initialize() {
+      * Initialize the contents of the frame.
+      */
+            private void initialize() {
         frame = new JFrame();
         frame.setBounds(100, 100, 450, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -72,6 +58,9 @@ public class SignIn {
             if(service != null) {
                 try {
                     setup();
+                    MainWindow mainWindow = new MainWindow();
+                    mainWindow.frame.setVisible(true);
+                    frame.setVisible(false);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
@@ -88,4 +77,3 @@ public class SignIn {
         panel.add(lblNotekeeper);
     }
 }
-

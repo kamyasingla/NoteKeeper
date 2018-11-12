@@ -5,25 +5,37 @@ import com.uwindsor.notekeeper.model.Note;
 import javax.swing.*;
 import java.awt.*;
 
-public class NoteListItem extends JPanel implements ListCellRenderer<Note>{
-	/**
-	 * Create the panel.
-	 */
-	NoteListItem() {
-		setLayout(null);
-		
-		JLabel lblTitle = new JLabel("New label");
-		//lblTitle.setBounds(6, 6, 274, 22);
-		add(lblTitle);
-		
-		JLabel lblDate = new JLabel("New label");
-		//lblDate.setBounds(164, 40, 116, 16);
-		add(lblDate);
+public class NoteListItem extends JPanel implements ListCellRenderer<Note> { 
+    private final JLabel lblTitle, lblDate;
 
-	}
+    /**
+     * Create the panel.
+     */
+    NoteListItem() {
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-	@Override
-	public Component getListCellRendererComponent(JList<? extends Note> list, Note value, int index, boolean isSelected, boolean cellHasFocus) {
-		return this;
-	}
+        lblTitle = new JLabel("Title");
+        add(lblTitle);
+
+        lblDate = new JLabel("Date");
+        add(lblDate);
+        setBackground(Color.white);
+    }
+
+    private void setValues(String title, String date) { 
+    	lblTitle.setText(title);
+    	lblDate.setText(date); 
+    }
+    
+    private void setSelected(boolean isSelected) { 
+    	if(isSelected) setBackground(Color.BLUE);
+else setBackground(Color.WHITE);
+}
+
+    @Override
+    public Component getListCellRendererComponent(JList<? extends Note> list, Note value, int index, boolean isSelected, boolean cellHasFocus) {
+    	setValues(value.getFileName(), value.getCreationDate().toString());
+    	setSelected(isSelected);
+    	return this;
+    }
 }
