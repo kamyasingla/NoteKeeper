@@ -11,6 +11,8 @@ import java.awt.BorderLayout;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.swing.JScrollPane;
 
@@ -54,6 +56,12 @@ public class NoteViewer {
 
         JButton btnEdit = new JButton("Edit");
         panel_1.add(btnEdit);
+        btnEdit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editClicked((JButton) e.getSource());
+            }
+        });
 
         JButton btnDelete = new JButton("Delete");
         panel_1.add(btnDelete);
@@ -76,6 +84,17 @@ public class NoteViewer {
         txtContent = new JTextArea();
         txtContent.setEditable(false);
         scrollPane.setViewportView(txtContent);
+    }
+
+    private void editClicked(JButton btnEdit){
+        if(btnEdit.getText().equals("Edit")){
+            btnEdit.setText("Save");
+            txtContent.setEditable(true);
+        }
+        else{
+            btnEdit.setText("Edit");
+            txtContent.setEditable(false);
+        }
     }
 
 }
