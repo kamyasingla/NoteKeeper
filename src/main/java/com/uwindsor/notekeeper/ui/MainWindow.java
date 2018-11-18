@@ -2,6 +2,7 @@ package com.uwindsor.notekeeper.ui;
 
 import com.uwindsor.notekeeper.model.Note;
 import com.uwindsor.notekeeper.service.PersistenceService;
+import sun.applet.Main;
 
 import java.awt.EventQueue;
 
@@ -11,6 +12,7 @@ import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +20,7 @@ public class MainWindow {
 
     public JFrame frame;
     private PersistenceService persistenceService;
+    private DefaultListModel<Note> listModel = new DefaultListModel<>();
 
     /**
      * Create the application.
@@ -27,13 +30,14 @@ public class MainWindow {
         initialize();
     }
 
-    private Note[] loadNotes() {
+    private void loadNotes() {
         try {
-            List<Note> notes = persistenceService.getAllNotes();
-            return notes.toArray(new Note[0]);
+            persistenceService.getAllNotes()
+                    .stream()
+                    .sorted(Comparator.comparing(Note::getCreationDate).reversed())
+                    .forEach(listModel::addElement);
         } catch (IOException ex) {
             ex.printStackTrace();
-            return new Note[0];
         }
     }
 
@@ -45,12 +49,22 @@ public class MainWindow {
         frame.setBounds(100, 100, 384, 456);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(new BorderLayout());
+        loadNotes();
+        JList<Note> list = new JList<>(listModel);
 
         JPanel btnPanel = new JPanel();
         frame.getContentPane().add(btnPanel, BorderLayout.NORTH);
         btnPanel.setLayout(new BorderLayout(0, 0));
 
         JButton btnCreate = new JButton("+");
+        btnCreate.addActionListener(i -> {
+            String fileName = JOptionPane.showInputDialog(frame, "Please enter filename: ");
+            try {
+                listModel.add(0, persistenceService.createNote(fileName));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
         btnPanel.add(btnCreate, BorderLayout.EAST);
 
         JPanel borderPanelW = new JPanel();
@@ -65,15 +79,13 @@ public class MainWindow {
         JScrollPane scrollPane = new JScrollPane();
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
 
-        Note[] notes = loadNotes();
 
-        JList<Note> list = new JList<>(notes);
         list.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 JList list = (JList)e.getSource();
                 if(e.getClickCount() == 2) {
-                    NoteViewer noteViewer = new NoteViewer(persistenceService, notes[list.getSelectedIndex()]);
+                    NoteViewer noteViewer = new NoteViewer(persistenceService, listModel.get(list.getSelectedIndex()));
                     noteViewer.frame.setVisible(true);
                 } else {
                     super.mouseClicked(e);
