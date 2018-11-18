@@ -1,5 +1,6 @@
 package com.uwindsor.notekeeper.drive;
 
+import com.google.api.client.http.InputStreamContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
@@ -7,7 +8,9 @@ import com.uwindsor.notekeeper.model.Note;
 import com.uwindsor.notekeeper.service.PersistenceService;
 import com.uwindsor.notekeeper.util.Constants;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,7 +61,6 @@ public class GooglePersistenceService implements PersistenceService {
 
     @Override
     public void encryptNote(Note note, String content, String password) {
-
     }
 
     @Override
@@ -69,5 +71,29 @@ public class GooglePersistenceService implements PersistenceService {
     @Override
     public String getNoteContent(Note note) throws IOException {
         return GoogleDriveClient.getFile(service, note.getId());
+    }
+
+    @Override
+    public void saveNoteContent(Note note, String content) throws IOException {
+        File fileMetadata = new File();
+        fileMetadata.setName(note.getFileName());
+        fileMetadata.setMimeType("application/octet-stream");
+        service.files()
+                .update(note.getId(), fileMetadata,
+                        new InputStreamContent("application/octet-stream",
+                                new ByteArrayInputStream(content.getBytes())))
+                .setFields("id").execute();
+    }
+
+    @Override
+    public Note createNote(String fileName) throws IOException {
+        File fileMetadata = new File();
+        fileMetadata.setParents(Collections.singletonList(Constants.NOTES_DIR_ID));
+        fileMetadata.setName(fileName);
+        fileMetadata.setMimeType("application/octet-stream");
+        File file = service.files().create(fileMetadata)
+                .setFields("id, name, modifiedTime")
+                .execute();
+        return Mapper.toNote(file, false);
     }
 }

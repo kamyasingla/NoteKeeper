@@ -1,10 +1,6 @@
 package com.uwindsor.notekeeper.ui;
-
 import com.uwindsor.notekeeper.model.Note;
 import com.uwindsor.notekeeper.service.PersistenceService;
-
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -92,9 +88,19 @@ public class NoteViewer {
             txtContent.setEditable(true);
         }
         else{
+            saveNote();
             btnEdit.setText("Edit");
             txtContent.setEditable(false);
         }
+    }
+
+    private void saveNote() {
+        try {
+            persistenceService.saveNoteContent(note, txtContent.getText());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
     }
 
 }

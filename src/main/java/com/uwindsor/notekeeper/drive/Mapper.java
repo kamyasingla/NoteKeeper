@@ -16,12 +16,4 @@ class Mapper {
         note.setEncrypted(isEncrypted);
         return note;
     }
-
-    static File fromNote(Note note, String content){
-        File fileMetadata = new File();
-        fileMetadata.setName("photo.jpg");
-        java.io.File filePath = new java.io.File("files/photo.jpg");
-        FileContent mediaContent = new FileContent("image/jpeg", filePath);
-        return null;
-    }
 }

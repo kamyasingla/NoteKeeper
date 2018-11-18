@@ -20,4 +20,8 @@ public interface PersistenceService {
     String decryptNote(Note note, String password) throws IOException;
 
     String getNoteContent(Note note) throws IOException;
+
+    void saveNoteContent(Note note, String content) throws IOException;
+
+    Note createNote(String fileName) throws IOException;
 }

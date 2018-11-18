@@ -42,4 +42,14 @@ public class DropBoxPersistenceService implements PersistenceService {
     public String getNoteContent(Note note) {
         return null;
     }
+
+    @Override
+    public void saveNoteContent(Note note, String content) throws IOException {
+
+    }
+
+    @Override
+    public Note createNote(String fileName) throws IOException {
+        return null;
+    }
 }
