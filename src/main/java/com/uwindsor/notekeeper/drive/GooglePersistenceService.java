@@ -96,4 +96,16 @@ public class GooglePersistenceService implements PersistenceService {
                 .execute();
         return Mapper.toNote(file, false);
     }
+
+    @Override
+    public void deleteNote(Note note) {
+        String fileId;
+        fileId = note.getId();
+        try {
+            service.files().delete(fileId).execute();
+        } catch (IOException e) {
+            System.out.println("An error occurred: " + e);
+        }
+    }
+
 }

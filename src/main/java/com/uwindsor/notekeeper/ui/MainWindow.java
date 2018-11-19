@@ -30,8 +30,9 @@ public class MainWindow {
         initialize();
     }
 
-    private void loadNotes() {
+    public void loadNotes() {
         try {
+            listModel.clear();
             persistenceService.getAllNotes()
                     .stream()
                     .sorted(Comparator.comparing(Note::getCreationDate).reversed())
@@ -85,7 +86,7 @@ public class MainWindow {
             public void mouseClicked(MouseEvent e) {
                 JList list = (JList)e.getSource();
                 if(e.getClickCount() == 2) {
-                    NoteViewer noteViewer = new NoteViewer(persistenceService, listModel.get(list.getSelectedIndex()));
+                    NoteViewer noteViewer = new NoteViewer(persistenceService, listModel.get(list.getSelectedIndex()),MainWindow.this);
                     noteViewer.frame.setVisible(true);
                 } else {
                     super.mouseClicked(e);

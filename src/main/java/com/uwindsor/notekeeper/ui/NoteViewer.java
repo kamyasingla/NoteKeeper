@@ -1,6 +1,8 @@
 package com.uwindsor.notekeeper.ui;
 import com.uwindsor.notekeeper.model.Note;
 import com.uwindsor.notekeeper.service.PersistenceService;
+import sun.applet.Main;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -18,13 +20,15 @@ public class NoteViewer {
     private Note note;
     private JTextArea txtContent;
     private PersistenceService persistenceService;
+    private MainWindow mainWindow;
 
     /**
      * Create the application.
      */
-    NoteViewer(PersistenceService persistenceService, Note note) {
+    NoteViewer(PersistenceService persistenceService, Note note, MainWindow mainWindow) {
         this.persistenceService = persistenceService;
         this.note = note;
+        this.mainWindow = mainWindow;
         initialize();
         try {
             txtContent.setText(persistenceService.getNoteContent(note));
@@ -61,6 +65,12 @@ public class NoteViewer {
 
         JButton btnDelete = new JButton("Delete");
         panel_1.add(btnDelete);
+        btnDelete.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deleteClicked();
+            }
+        });
 
         JButton btnEncrypt = new JButton("Encrypt");
         panel_1.add(btnEncrypt);
@@ -101,6 +111,17 @@ public class NoteViewer {
             ex.printStackTrace();
         }
 
+    }
+
+    private void deleteClicked(){
+        try{
+            persistenceService.deleteNote(note);
+            mainWindow.loadNotes();
+            frame.setVisible(false);
+        }
+        catch (IOException ex){
+            ex.printStackTrace();
+        }
     }
 
 }
