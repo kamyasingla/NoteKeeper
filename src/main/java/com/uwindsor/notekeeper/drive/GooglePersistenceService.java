@@ -10,6 +10,7 @@ import com.google.common.io.CharStreams;
 import com.uwindsor.notekeeper.model.Note;
 import com.uwindsor.notekeeper.service.PersistenceService;
 import com.uwindsor.notekeeper.util.Constants;
+import com.uwindsor.notekeeper.util.SimpleEncryptDecrypt;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -66,12 +67,24 @@ public class GooglePersistenceService implements PersistenceService {
     }
 
     @Override
-    public void encryptNote(Note note, String content, String password) {
+    public Note encryptNote(Note note, String content, String password) throws IOException {
+        String encryptedContent = SimpleEncryptDecrypt.encrypt(content, password);
+        File fileMetadata = new File();
+        fileMetadata.setParents(Collections.singletonList(Constants.ENCRYPTED_NOTE_DIR_ID));
+        fileMetadata.setName(note.getFileName());
+        fileMetadata.setMimeType("application/octet-stream");
+        File file = service.files().create(fileMetadata, new InputStreamContent("application/octet-stream",
+                new ByteArrayInputStream(encryptedContent.getBytes())))
+                .setFields("id, name, modifiedTime")
+                .execute();
+        //Delete un-encrypted file
+        service.files().delete(note.getId()).execute();
+        return Mapper.toNote(file, false);
     }
 
     @Override
-    public String decryptNote(Note note, String password) {
-        return null;
+    public String decryptNote(Note note, String password) throws IOException {
+        return SimpleEncryptDecrypt.decrypt(GoogleDriveClient.getFile(service, note.getId()), password);
     }
 
     @Override

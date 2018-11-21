@@ -2,14 +2,14 @@ package com.uwindsor.notekeeper.ui;
 import com.google.common.hash.Hashing;
 import com.uwindsor.notekeeper.model.Note;
 import com.uwindsor.notekeeper.service.PersistenceService;
-import com.uwindsor.notekeeper.util.EncryptDecryptStringWithDES;
-import sun.applet.Main;
+import com.uwindsor.notekeeper.util.SimpleEncryptDecrypt;
 
 import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -20,6 +20,7 @@ public class NoteViewer {
     private JTextArea txtContent;
     private PersistenceService persistenceService;
     private MainWindow mainWindow;
+    private JButton btnEncrypt;
 
     /**
      * Create the application.
@@ -30,7 +31,15 @@ public class NoteViewer {
         this.mainWindow = mainWindow;
         initialize();
         try {
-            txtContent.setText(persistenceService.getNoteContent(note));
+            if(note.getEncrypted()) {
+                String hashedPassword = checkPassword();
+                if(hashedPassword != null)
+                    txtContent.setText(persistenceService.decryptNote(note, hashedPassword));
+                else
+                    frame.setVisible(false);
+            } else {
+                txtContent.setText(persistenceService.getNoteContent(note));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -72,7 +81,7 @@ public class NoteViewer {
         });
 
         if(!note.getEncrypted()) {
-            JButton btnEncrypt = new JButton("Encrypt");
+            btnEncrypt = new JButton("Encrypt");
             panel_1.add(btnEncrypt);
             btnEncrypt.addActionListener(new ActionListener() {
                 @Override
@@ -113,7 +122,15 @@ public class NoteViewer {
 
     private void saveNote() {
         try {
-            persistenceService.saveNoteContent(note, txtContent.getText());
+            if(note.getEncrypted()) {
+                String hashedPassword = checkPassword();
+                if(hashedPassword != null)
+                    persistenceService.saveNoteContent(note,
+                            SimpleEncryptDecrypt.encrypt(txtContent.getText(), hashedPassword));
+            } else {
+                persistenceService.saveNoteContent(note, txtContent.getText());
+            }
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -133,28 +150,65 @@ public class NoteViewer {
 
     private void encryptClicked() {
         try {
-            String password = persistenceService.getPassword();
-            String encryptedString = EncryptDecryptStringWithDES.encrypt("Hello World", password);
-            System.out.println(encryptedString);
-            String decryptedString = EncryptDecryptStringWithDES.decrypt(encryptedString, password);
-            System.out.println(decryptedString);
-            String message, uPassword;
-            if(password == null) {
-                message = "Password is not set. Enter a new password:";
-                uPassword = JOptionPane.showInputDialog(frame, message);
-                uPassword = persistenceService.savePassword(uPassword);
-            } else {
-                message = "Enter password:";
-                uPassword = JOptionPane.showInputDialog(frame, message);
-                String hashedPassword = getPasswordHashed(uPassword);
-                while(!password.equals(hashedPassword)) {
-                    uPassword = JOptionPane.showInputDialog(frame, "Wrong Password. Try again!");
-                    hashedPassword = getPasswordHashed(uPassword);
-                }
+            String hashedPassword = checkPassword();
+            if(hashedPassword != null) {
+                this.note = persistenceService.encryptNote(note, txtContent.getText(), hashedPassword);
+                mainWindow.loadNotes();
+                btnEncrypt.setVisible(false);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private String checkPassword() {
+        try {
+            String password = persistenceService.getPassword();
+            if(password == null) {
+                String uPassword = showPasswordDialog("Password is not set. Enter a new password:");
+                if(!uPassword.isEmpty())
+                    return persistenceService.savePassword(uPassword);
+                else
+                    return null;
+            }
+            String uPassword = showPasswordDialog("Enter password:");
+            if(uPassword.isEmpty())
+                return null;
+            String hashedPassword = getPasswordHashed(uPassword);
+            int tries = 1;
+            while(!password.equals(hashedPassword) && tries != 3) {
+                uPassword = showPasswordDialog("Wrong Password. Try again!");
+                if(uPassword.isEmpty())
+                    return null;
+                hashedPassword = getPasswordHashed(uPassword);
+                tries++;
+            }
+            if(tries > 2) {
+                JOptionPane.showMessageDialog(frame, "Incorrect password entered 3 times please try again");
+                return null;
+            }
+            return hashedPassword;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    private String showPasswordDialog(String message) {
+        JPanel jPanel = new JPanel();
+        JLabel label = new JLabel(message);
+        JPasswordField pass = new JPasswordField(10);
+        jPanel.add(label);
+        jPanel.add(pass);
+        String[] options = new String[]{"OK", "Cancel"};
+        int option = JOptionPane.showOptionDialog(frame, jPanel, "Password",
+                JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE,
+                null, options, options[1]);
+        if(option == 0) {
+            return new String(pass.getPassword());
+        }
+
+        return "";
     }
 
     private String getPasswordHashed(String uPassword) {

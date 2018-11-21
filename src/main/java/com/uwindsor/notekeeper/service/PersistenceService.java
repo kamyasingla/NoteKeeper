@@ -15,7 +15,7 @@ public interface PersistenceService {
 
     List<Note> getEncryptedNotes() throws IOException;
 
-    void encryptNote(Note note, String content, String password) throws IOException;
+    Note encryptNote(Note note, String content, String password) throws IOException;
 
     String decryptNote(Note note, String password) throws IOException;
 
