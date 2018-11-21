@@ -1,18 +1,17 @@
 package com.uwindsor.notekeeper.ui;
+import com.google.common.hash.Hashing;
 import com.uwindsor.notekeeper.model.Note;
 import com.uwindsor.notekeeper.service.PersistenceService;
+import com.uwindsor.notekeeper.util.EncryptDecryptStringWithDES;
 import sun.applet.Main;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.BorderLayout;
-import javax.swing.JTextArea;
-import javax.swing.JButton;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import javax.swing.JScrollPane;
+import java.nio.charset.StandardCharsets;
 
 public class NoteViewer {
 
@@ -72,8 +71,16 @@ public class NoteViewer {
             }
         });
 
-        JButton btnEncrypt = new JButton("Encrypt");
-        panel_1.add(btnEncrypt);
+        if(!note.getEncrypted()) {
+            JButton btnEncrypt = new JButton("Encrypt");
+            panel_1.add(btnEncrypt);
+            btnEncrypt.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    encryptClicked();
+                }
+            });
+        }
 
         JPanel panel_2 = new JPanel();
         panel.add(panel_2, BorderLayout.WEST);
@@ -124,4 +131,36 @@ public class NoteViewer {
         }
     }
 
+    private void encryptClicked() {
+        try {
+            String password = persistenceService.getPassword();
+            String encryptedString = EncryptDecryptStringWithDES.encrypt("Hello World", password);
+            System.out.println(encryptedString);
+            String decryptedString = EncryptDecryptStringWithDES.decrypt(encryptedString, password);
+            System.out.println(decryptedString);
+            String message, uPassword;
+            if(password == null) {
+                message = "Password is not set. Enter a new password:";
+                uPassword = JOptionPane.showInputDialog(frame, message);
+                uPassword = persistenceService.savePassword(uPassword);
+            } else {
+                message = "Enter password:";
+                uPassword = JOptionPane.showInputDialog(frame, message);
+                String hashedPassword = getPasswordHashed(uPassword);
+                while(!password.equals(hashedPassword)) {
+                    uPassword = JOptionPane.showInputDialog(frame, "Wrong Password. Try again!");
+                    hashedPassword = getPasswordHashed(uPassword);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getPasswordHashed(String uPassword) {
+        String sha256hex = Hashing.sha256()
+                .hashString(uPassword, StandardCharsets.UTF_8)
+                .toString();
+        return sha256hex;
+    }
 }

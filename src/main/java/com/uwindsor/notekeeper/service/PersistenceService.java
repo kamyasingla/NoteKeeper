@@ -26,4 +26,8 @@ public interface PersistenceService {
     Note createNote(String fileName) throws IOException;
 
     void deleteNote(Note note) throws IOException;
+
+    String savePassword(String password) throws IOException;
+
+    String getPassword() throws IOException;
 }

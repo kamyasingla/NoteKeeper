@@ -4,12 +4,18 @@ import com.google.api.client.http.InputStreamContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.google.common.base.Charsets;
+import com.google.common.hash.Hashing;
+import com.google.common.io.CharStreams;
 import com.uwindsor.notekeeper.model.Note;
 import com.uwindsor.notekeeper.service.PersistenceService;
 import com.uwindsor.notekeeper.util.Constants;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -98,14 +104,45 @@ public class GooglePersistenceService implements PersistenceService {
     }
 
     @Override
-    public void deleteNote(Note note) {
+    public void deleteNote(Note note) throws IOException {
         String fileId;
         fileId = note.getId();
-        try {
-            service.files().delete(fileId).execute();
-        } catch (IOException e) {
-            System.out.println("An error occurred: " + e);
-        }
+        service.files().delete(fileId).execute();
     }
 
+    @Override
+    public String savePassword(String password) throws IOException {
+        File fileMetadata = new File();
+        fileMetadata.setParents(Collections.singletonList("appDataFolder"));
+        fileMetadata.setName("password");
+        String sha256hex = Hashing.sha256()
+                .hashString(password, StandardCharsets.UTF_8)
+                .toString();
+        service.files().create(fileMetadata,
+                new InputStreamContent("application/octet-stream",
+                        new ByteArrayInputStream(sha256hex.getBytes())) ).execute();
+        return sha256hex;
+    }
+
+    @Override
+    public String getPassword() throws IOException {
+        String fileId;
+        FileList files = service.files().list()
+                .setSpaces("appDataFolder")
+                .setFields("nextPageToken, files(id, name)")
+                .setPageSize(10)
+                .execute();
+        if(files.getFiles().size() == 0){
+            return null;
+        }
+        else{
+            fileId = files.getFiles().get(0).getId();
+        }
+        InputStream inputStream = service.files()
+                .get(fileId)
+                .executeMediaAsInputStream();
+
+        return CharStreams.toString(new InputStreamReader(
+                inputStream, Charsets.UTF_8));
+    }
 }
