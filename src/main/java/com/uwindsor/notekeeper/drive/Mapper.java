@@ -1,6 +1,5 @@
 package com.uwindsor.notekeeper.drive;
 
-import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.model.File;
 import com.uwindsor.notekeeper.model.Note;
 

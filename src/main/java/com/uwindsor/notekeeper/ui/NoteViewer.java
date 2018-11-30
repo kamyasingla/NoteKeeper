@@ -1,15 +1,14 @@
 package com.uwindsor.notekeeper.ui;
+
 import com.google.common.hash.Hashing;
 import com.uwindsor.notekeeper.model.Note;
 import com.uwindsor.notekeeper.service.PersistenceService;
 import com.uwindsor.notekeeper.util.SimpleEncryptDecrypt;
 
 import javax.swing.*;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 

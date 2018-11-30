@@ -2,19 +2,13 @@ package com.uwindsor.notekeeper.ui;
 
 import com.uwindsor.notekeeper.model.Note;
 import com.uwindsor.notekeeper.service.PersistenceService;
-import sun.applet.Main;
-
-import java.awt.EventQueue;
 
 import javax.swing.*;
-import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
 
 public class MainWindow {
 

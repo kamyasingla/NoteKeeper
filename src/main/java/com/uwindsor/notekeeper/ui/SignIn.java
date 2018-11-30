@@ -3,12 +3,8 @@ package com.uwindsor.notekeeper.ui;
 import com.uwindsor.notekeeper.drive.GooglePersistenceService;
 import com.uwindsor.notekeeper.service.PersistenceService;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import java.awt.Font;
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 
 public class SignIn {
