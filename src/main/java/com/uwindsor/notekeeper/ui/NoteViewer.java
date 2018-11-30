@@ -115,6 +115,7 @@ public class NoteViewer {
         }
         else{
             saveNote();
+            JOptionPane.showMessageDialog(frame, "Note Saved!");
             btnEdit.setText("Edit");
             txtContent.setEditable(false);
         }

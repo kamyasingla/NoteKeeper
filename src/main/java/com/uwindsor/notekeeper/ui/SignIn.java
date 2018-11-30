@@ -17,14 +17,14 @@ public class SignIn {
     public JFrame frame;
 
     public SignIn() {
-        persistenceService = new GooglePersistenceService();
+//        persistenceService = new GooglePersistenceService();
         initialize();
     }
 
     /**
       * Initialize the contents of the frame.
       */
-            private void initialize() {
+    private void initialize() {
         frame = new JFrame();
         frame.setBounds(100, 100, 450, 300);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,17 +37,17 @@ public class SignIn {
 
         JButton btnNewButton = new JButton("Sign In With Google");
         btnNewButton.addActionListener(e -> {
-            if(persistenceService != null) {
-                try {
-                    persistenceService.setup();
-                    MainWindow mainWindow = new MainWindow(persistenceService);
-                    mainWindow.frame.setVisible(true);
-                    frame.setVisible(false);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-
+            btnNewButton.setEnabled(false);
+            persistenceService = new GooglePersistenceService();
+            try {
+                persistenceService.setup();
+                MainWindow mainWindow = new MainWindow(persistenceService);
+                mainWindow.frame.setVisible(true);
+                frame.setVisible(false);
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
+            btnNewButton.setEnabled(true);
         });
         btnNewButton.setBounds(144, 119, 167, 29);
         panel.add(btnNewButton);

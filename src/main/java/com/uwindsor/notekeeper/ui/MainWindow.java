@@ -59,7 +59,7 @@ public class MainWindow {
 
         JButton btnCreate = new JButton("+");
         btnCreate.addActionListener(i -> {
-            String fileName = JOptionPane.showInputDialog(frame, "Please enter filename: ");
+            String fileName = JOptionPane.showInputDialog(frame, "Please enter note name: ");
             try {
                 listModel.add(0, persistenceService.createNote(fileName));
             } catch (IOException e) {
